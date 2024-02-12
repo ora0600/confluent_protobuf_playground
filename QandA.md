@@ -80,6 +80,8 @@ producer = Producer({
 # Your producer logic goes here...
 ``` 
 
+You can derive a schema from message (maven-plugin). See [derive-schema](https://docs.confluent.io/cloud/current/sr/develop/maven-plugin.html#schema-registry-derive-schema) command.
+
 # Protobuf: When forward compatibility method is not achievable for protobuf?
 
 In the context of schema evolution with Protobuf, the **"forward compatibility"** refers to the ability to read new data with an old schema. It means that if a new field is added to a message, an old consumer that's unaware of this new field should still be able to read and process the message without errors, ignoring the new field.
