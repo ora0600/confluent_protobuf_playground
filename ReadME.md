@@ -4,6 +4,10 @@
 2. In our [Q & A section](QandA.md) you will find answers around typical questions.
 3. In the playground section (read below), you can play around compatibility methods and schema management. We focus here on Protobuf and Python as client lib.
 
+Resources:
+* Offical confluent event streaming patterns. [Schema Evolution](https://github.com/confluentinc/event-streaming-patterns/blob/21069010c19dc6d94ab70dc74928e00b2eb242d9/docs/event-stream/schema-evolution.md) and [docu](https://docs.confluent.io/platform/current/schema-registry/fundamentals/schema-evolution.html)
+* Original Confluent Hints around [Schema Compatibility](https://github.com/confluentinc/event-streaming-patterns/blob/21069010c19dc6d94ab70dc74928e00b2eb242d9/docs/event-stream/schema-compatibility.md) 
+
 # Protobuf Playground for Schema Evolution Testing
 
 Install the playground on your desktop:
@@ -137,6 +141,21 @@ Play around with Schema Evolution and use all the fancy tools in Confluent Cloud
 * Topic Viewer and Schema Editor
 * Schema Registry Editor
 * etc.
+
+# How to get Schema ID from the Message
+
+```bash
+kafka-protobuf-console-consumer --bootstrap-server <bootstrap>:<host> \
+--property basic.auth.credentials.source="USER_INFO" \
+--property print.key=true \
+--property print.schema.ids=true \
+--property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer \
+--property schema.registry.url=<SR endpoint> \
+--consumer.config /path/to/properties/file \
+--topic <topic-name> \
+--from-beginning \
+--property schema.registry.basic.auth.user.info <SR_key>:<SR_secret>
+``` 
 
 
 # Destroy the playground

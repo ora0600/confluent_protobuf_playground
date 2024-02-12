@@ -96,6 +96,34 @@ However, there are situations where achieving forward compatibility with Protobu
 
 In summary, achieving forward compatibility with Protobuf schemas depends on the nature of the changes made to the schema and the requirements of the application. While Protobuf provides mechanisms for handling backward-compatible schema changes, achieving forward compatibility may not always be possible or practical, especially in scenarios involving semantic changes or non-optional field additions.
 
+# Config test with `auto.register.schemas` and `use.latest.version`
+
+1. Test: 
+Can produce a current version of a message, or a backwards compatible version of a message. When trying to produce a message with a schema that doesn’t exist, I got an error message that the schema does not exist, even if it is backwards compatible. the setting force our clients to only use schemas that exist that are backwards compatible.
+
+```python
+serializer_conf = {
+    'auto.register.schemas': False,
+    'use.latest.version': False
+}
+```
+
+2. Test: 
+Can successfully produce only a message with the latest schema, backwards compatibility is totally ignored
+
+```python
+serializer_conf = {
+    'auto.register.schemas': False,
+    'use.latest.version': True
+}
+``` 
+
+3. Test:
+`auto.register.schemas = false` and did not set the `use.latest.version` set in a Java application. 
+Could be that there is an issues with schema compatibility. 
+Set `use.latest.version=false` in your configuration and it worked. Typically `use.latest.version=false` is set by default to false.
+
+
 # Some Hints, when to use which method:
 
 1. **Forward compatibility** is enough when the producer wants to update events without breaking consumers, who still would be able to use the old schema before they update.
