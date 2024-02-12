@@ -1,6 +1,6 @@
-# How to find the best strategy
+# Schema Management Strategy - How to find the best strategy?
 
-Confluent Documentation ([Platform](https://docs.confluent.io/platform/current/schema-registry/fundamentals/schema-evolution.html) / [Cloud](https://docs.confluent.io/cloud/current/sr/index.html)) is describing the fact - the what - and not the how to do this.
+Confluent Documentation ([Platform](https://docs.confluent.io/platform/current/schema-registry/fundamentals/schema-evolution.html) / [Cloud](https://docs.confluent.io/cloud/current/sr/index.html)) is describing the fact - the what - and not the how to do develop an own strategy.
 I will try to bring everything together.
 
 ## Introduction
@@ -12,23 +12,23 @@ Some common compatibility methods include:
 
 * **Backward compatibility**: Ensuring that new schema changes are compatible with older versions of the application or database, allowing existing data and systems to continue functioning without interruption.
 * **Forward compatibility**: Making sure that older versions of the application or database can still function properly with newer versions of the schema, allowing for smooth upgrades without breaking existing functionality.
-* **Versioning**: Implementing a versioning system that tracks changes to the schema over time, allowing for multiple versions of the schema to coexist and ensuring compatibility between different versions of the application and database. The is then the schema registry.
-* **Data migration**: When significant changes to the schema are necessary, migrating existing data to conform to the new schema structure while preserving integrity and minimizing disruption to the system.
+* **Versioning**: Implementing a versioning system that tracks changes to the schema over time, allowing for multiple versions of the schema to coexist and ensuring compatibility between different versions of the application and database. Here the Confluent Schema Registry will always use.
+* **Data migration**: When significant changes to the schema are necessary, migrating existing data to conform to the new schema structure while preserving integrity and minimizing disruption to the system. This is typically a development process, to upgrade application code.
 
 Choosing the best compatibility method often requires careful consideration of the specific requirements and constraints of the system, as well as collaboration between database administrators, developers, and other stakeholders.
 
-## Example: What could be a best example for Strategy finding
+## Example: Finding best Strategy
 
-One example of a best strategy for schema evolution could be employing backward compatibility combined with versioning. Here's how it could work:
+One example of a best strategy for schema evolution could be employing backward compatibility combined with versioning (Schema Registry). Here's how it could work:
 
 * **Backward Compatibility**: Ensure that any new schema changes are backward compatible with older versions of the application or database. This means that existing data and systems can continue to function without interruption even after the schema has been updated. This strategy helps prevent disruptions to ongoing operations and user experiences.
-* **Versioning**: Implement a versioning system that tracks changes to the schema over time. Each new version of the schema should be clearly documented, and changes should be carefully managed to avoid conflicts or inconsistencies. Versioning allows for multiple versions of the schema to coexist, making it easier to manage transitions between different versions of the application or database.
+* **Versioning**: Use COnfluent Registry that tracks changes to the schema over time. Each new version of the schema should be clearly documented (tagging and description), and changes should be carefully managed to avoid conflicts or inconsistencies. Versioning allows for multiple versions of the schema to coexist, making it easier to manage transitions between different versions of the application or database.
 
 By combining **backward compatibility with versioning**, you can ensure that schema evolution is managed effectively while minimizing disruptions to existing systems and data. This approach provides flexibility for making changes as needed while maintaining the integrity and stability of the overall system.
 
-## The Full method
+## The Full compatibility method
 
-The "**Full**" method in the context of schema evolution typically refers to a strategy where backward and forward compatibility are both maintained simultaneously. This approach aims to ensure that new versions of the schema are compatible with both older and newer versions of the application or database.
+The "**Full**" method in the context of schema evolution typically refers to a strategy where backward and forward compatibility are both maintained simultaneously. This approach aims to ensure that new versions of the schema are compatible with both older and newer versions of the application or database. You to be able to foresee the future (more or less).
 
 In the Full method:
 
@@ -37,7 +37,7 @@ In the Full method:
 
 By implementing the Full method, organizations can maintain flexibility and stability in their systems, accommodating both current and future needs without sacrificing compatibility or data integrity.
 
-### What are the pitfalls of Full method?
+### Pitfalls of Full method
 
 While the "**Full**" method of schema evolution offers many benefits, there are still **potential pitfalls** to consider:
 
@@ -51,7 +51,7 @@ Despite these potential pitfalls, the Full method can still be a valuable approa
 
 ## Advantages of backward compared with Full method
 
-the advantages of the **backward compatibility** approach compared to the **full compatibility method** include:
+The advantages of the **backward compatibility** approach compared to the **full compatibility method** include:
 
 1. **Simplicity**: Backward compatibility focuses solely on ensuring that new schema changes are compatible with older versions of the application or database. This simplicity can make it easier to design, implement, and maintain schema changes, reducing complexity and potential points of failure.
 2. **Faster Development**: With a narrower focus on backward compatibility, developers can often implement schema changes more quickly compared to the full compatibility method. This can accelerate the pace of development and deployment for new features or updates.
@@ -61,7 +61,7 @@ the advantages of the **backward compatibility** approach compared to the **full
 
 Overall, backward compatibility offers a streamlined approach to managing schema evolution, prioritizing simplicity, speed, and flexibility. However, it may not be suitable for all situations, particularly those where compatibility with future versions is a critical consideration.
 
-## List of best methods for specific pattern
+## List of methods for specific pattern
 
 While there isn't a one-size-fits-all list of which compatibility method fits best for specific patterns, here are some general guidelines:
 
@@ -85,26 +85,22 @@ Ultimately, the choice of compatibility method depends on various factors, inclu
 For **Change Data Capture (CDC)**, where capturing and propagating changes in a database is crucial, a compatibility method that ensures both backward and forward compatibility is typically preferred. This often aligns with the **Full compatibility** method. Here's why:
 
 1. **Backward Compatibility**: It's essential to ensure that new schema changes made for CDC purposes are compatible with older versions of the application or database. This allows existing data and systems to continue functioning without interruption.
-
 2. **Forward Compatibility**: Similarly, changes should also consider compatibility with future versions of the application or database. This ensures that older versions can seamlessly interact with newer versions of the schema, maintaining the integrity and continuity of data propagation.
-
 3. **Versioning**: Implementing a versioning system alongside CDC helps track changes to the schema over time. This provides a clear history of modifications and facilitates the management of different schema versions, ensuring smooth transitions between versions.
 
 By employing the **Full compatibility method** for CDC, organizations can effectively manage schema evolution while ensuring data consistency, compatibility, and integrity across different versions of the application or database. This approach is particularly important in environments where capturing and propagating changes accurately and reliably are critical requirements.
 
-## Method for Event Sourcing 
+### Method for Event Sourcing 
 
 For **Event Sourcing**, which involves capturing and storing all changes to the application's state as a sequence of events, the compatibility method depends on the specific requirements and constraints of the system. However, the **Full compatibility method** is often well-suited for Event Sourcing, for similar reasons as with Change Data Capture (CDC):
 
 1. Backward Compatibility: New schema changes should be backward compatible to ensure that existing events can be replayed accurately, even after schema modifications. This allows for seamless querying and reconstruction of past states from the event log.
-
 2. Forward Compatibility: Changes should also consider forward compatibility to ensure that older events can still be interpreted correctly with newer versions of the schema. This ensures that the event log remains interpretable and usable as the schema evolves over time.
-
 3. Versioning: Implementing a versioning system is beneficial for tracking changes to the event schema over time. This helps manage different versions of the event schema and ensures compatibility between different versions of the application that may be producing or consuming events.
 
 By employing the Full compatibility method for Event Sourcing, organizations can maintain the integrity and consistency of event data while allowing for flexible schema evolution. This approach ensures that historical events remain interpretable and usable, even as the schema evolves to meet changing requirements.
 
-## Method for IoT
+### Method for IoT
 
 For **Internet of Things (IoT)** applications, the choice of compatibility method depends on various factors, including the nature of the IoT devices, the requirements of the system, and the constraints of the environment. However, a combination of **backward compatibility** and versioning is often well-suited for IoT scenarios:
 
@@ -113,9 +109,9 @@ For **Internet of Things (IoT)** applications, the choice of compatibility metho
 
 By combining backward compatibility with versioning, organizations can effectively manage schema evolution in IoT applications, ensuring compatibility with existing devices while accommodating the introduction of new features and improvements over time. This approach helps maintain the stability, reliability, and interoperability of IoT systems in dynamic and evolving environments.
 
-## Method for Microservices
+### Method for Microservices
 
-For **Microservices** architecture, where applications are composed of small, independently deployable services, managing schema evolution is crucial to maintain compatibility and interoperability between services. The best compatibility method for microservices often involves a combination of backward compatibility, forward compatibility, and versioning:
+For **Microservices** architecture, where applications are composed of small, independently deployable services, managing schema evolution is crucial to maintain compatibility and interoperability between services. The best compatibility method for microservices often involves a **combination of backward compatibility, forward compatibility, and versioning**:
 
 1. **Backward Compatibility**: Each service should strive to maintain backward compatibility with older versions of its API and data schema. This allows existing clients to continue functioning without modification, even as the service evolves and introduces new features or changes to its schema.
 2. **Forward Compatibility**: Services should also consider forward compatibility to ensure that newer versions of the service can interact seamlessly with older clients. This allows for smooth upgrades and deployments without requiring all clients to be updated simultaneously.
@@ -123,9 +119,9 @@ For **Microservices** architecture, where applications are composed of small, in
 
 By combining these compatibility methods, microservices architectures can achieve flexibility and agility while minimizing disruptions caused by schema changes. This approach enables independent development, deployment, and evolution of services while ensuring compatibility and interoperability across the system. Additionally, adopting standards and best practices for schema evolution, such as using semantic versioning and providing comprehensive documentation, can further enhance the management of compatibility in microservices architectures.
 
-## Method for AI cases
+### Method for AI cases
 
-For **AI** systems, managing schema evolution depends on the specific context and use case of the AI application. However, similar to other software systems, a combination of backward compatibility, forward compatibility, and versioning can be valuable:
+For **AI** systems, managing schema evolution depends on the specific context and use case of the AI application. However, similar to other software systems, a **combination of backward compatibility, forward compatibility, and versioning** can be valuable:
 
 1. **Backward Compatibility**: AI models and data formats should aim to maintain backward compatibility to ensure that existing deployments and integrations can continue to function effectively. This is particularly important in AI systems where models are trained on historical data and deployed in production environments.
 2. **Forward Compatibility**: Considering forward compatibility ensures that newer versions of AI models or data formats can still be used with older versions of the application or downstream systems. This helps future-proof AI systems and allows for seamless upgrades without requiring immediate updates to all components.
@@ -135,7 +131,7 @@ Additionally, AI systems often require careful validation and testing procedures
 
 Overall, adopting a comprehensive approach to schema evolution in AI systems helps ensure stability, reliability, and interoperability while enabling ongoing innovation and improvement in AI applications.
 
-## Other event pattern with best method
+### Other event pattern with method
 
 Here are a few more event-driven patterns along with the best compatibility method for each:
 
@@ -160,7 +156,7 @@ Reasoning: Each microservice may produce and consume events independently, makin
 
 In summary, the best compatibility method for event-driven patterns depends on the specific requirements and constraints of each pattern, but ensuring compatibility both backward and forward is generally beneficial for maintaining stability, reliability, and interoperability in event-driven systems.
 
-## Confusion: Best fit is FULL, but complex?
+### Confusion: Best fit is FULL in most cases, but complex?
 
 With Full method you need best development principles to overcome pitfalls (mentioned above).
 If you're looking for a simple and effective approach that also aligns with best practices, focusing on backward compatibility can be a solid choice.
@@ -174,11 +170,11 @@ Backward Compatibility:
 
 While full compatibility may offer more flexibility in certain situations, backward compatibility provides a straightforward and reliable approach that meets the needs of many systems without introducing unnecessary complexity.
 
-## Implementation principles for Backward as an example
+## Example: Implementation principles for Backward compatibility
 
 To design implementation principles for managing schema evolution with a focus on backward compatibility, consider the following guidelines:
 
-1. **Versioning**: Implement a versioning mechanism for schemas, APIs, and data formats to track changes over time. Use clear version identifiers and semantic versioning to communicate compatibility and migration paths effectively. Here: **Schema Registry**
+1. **Versioning**: Implement a versioning mechanism for schemas, APIs, and data formats to track changes over time. Use clear version identifiers and semantic versioning to communicate compatibility and migration paths effectively. Here: ** Confluent Schema Registry**
 2. **Documentation**: Provide comprehensive documentation for schema changes, including release notes, migration guides, and compatibility matrices. Ensure that developers, users, and other stakeholders have access to up-to-date information about schema evolution and compatibility requirements. Here. ** Schema Registry, with Tags (metadata, Business)**
 3. **Testing**: Develop robust testing strategies to verify backward compatibility before deploying schema changes. Implement automated tests to detect regressions and ensure that existing functionality remains intact after schema modifications. Here: You can use this playground for testing.
 4. **Deprecation Policies**: Define clear deprecation policies for outdated schema versions, APIs, and data formats. Communicate deprecation timelines and migration paths to users and stakeholders to facilitate smooth transitions to newer versions.
@@ -199,11 +195,11 @@ To determine which schema evolution method best fits your specific case, you can
 5. **Execute Test Cases**: Execute the test cases against your system using the selected test data sets. Record the results of each test, including any compatibility issues, errors, or unexpected behaviors encountered during testing.
 6. **Analyze Results**: Analyze the test results to evaluate the effectiveness of each compatibility method in meeting the requirements and constraints of your system. Consider factors such as simplicity, flexibility, performance, and overall impact on system stability and reliability.
 7. **Iterate and Refine**: Based on the test results and analysis, iterate on your schema evolution strategy and refine the implementation principles as needed. Consider adjusting the test plan or incorporating additional test cases to further validate the chosen compatibility method.
-8. ** Document Findings**: Document the findings of the test plan, including key observations, lessons learned, and recommendations for future schema evolution efforts. Share the results with stakeholders to facilitate informed decision-making and consensus on the chosen compatibility method.
+8. **Document Findings**: Document the findings of the test plan, including key observations, lessons learned, and recommendations for future schema evolution efforts. Share the results with stakeholders to facilitate informed decision-making and consensus on the chosen compatibility method.
 
 By following this test plan, you can systematically evaluate different schema evolution methods and determine which one best meets the specific needs and objectives of your system.
 
-### Here is an example of testing/analysing
+### Example: Web Application Test Plan for Schema Evolution
 
 Let's consider a sample case for a web application that manages user profiles. The application currently stores user information such as username, favorite number, and favorite color. The goal is to add a new field for storing the user's phone number while ensuring compatibility with existing user data and functionalities.
 
@@ -241,20 +237,20 @@ Share the results with stakeholders to facilitate informed decision-making and c
 
 By following this sample test plan, you can systematically evaluate different compatibility methods for schema evolution in your web application and determine the best approach for adding new fields while maintaining compatibility with existing data and functionalities.
 
-
 # Central Schema Management
 
 In general, it's typically better to **centrally manage schemas** using a schema registry rather than adding schemas directly from the producer. Here's why:
 
-1. Centralized Management: Using a schema registry allows for centralized management of schemas across different producers and consumers. This makes it easier to ensure consistency and compatibility across your data pipeline.
-2. Schema Evolution: Centralized schema management simplifies schema evolution. When schemas evolve over time, you can register new versions in the schema registry and update producers and consumers to use the latest compatible schema version. This helps maintain backward compatibility and ensures smooth data flow.
-3. Schema Validation: Schema registries often provide schema validation capabilities, ensuring that only valid schemas are registered. This helps prevent issues caused by invalid or incompatible schemas being used in the data pipeline.
-4. Versioning and Compatibility: Schema registries typically support versioning of schemas, allowing you to track changes over time and ensure compatibility between different versions of schemas. This is important for handling rolling updates and maintaining compatibility with existing data.
-5. Separation of Concerns: Centralized schema management promotes separation of concerns by decoupling schema definition and usage from individual producers and consumers. This makes it easier to maintain and scale your data pipeline as it grows and evolves.
+1. **Centralized Management**: Using a schema registry allows for centralized management of schemas across different producers and consumers. This makes it easier to ensure consistency and compatibility across your data pipeline.
+2. **Schema Evolution**: Centralized schema management simplifies schema evolution. When schemas evolve over time, you can register new versions in the schema registry and update producers and consumers to use the latest compatible schema version. This helps maintain backward compatibility and ensures smooth data flow.
+3. **Schema Validation**: Schema registries often provide schema validation capabilities, ensuring that only valid schemas are registered. This helps prevent issues caused by invalid or incompatible schemas being used in the data pipeline.
+4. **Versioning and Compatibility**: Schema registries typically support versioning of schemas, allowing you to track changes over time and ensure compatibility between different versions of schemas. This is important for handling rolling updates and maintaining compatibility with existing data.
+5. **Separation of Concerns**: Centralized schema management promotes separation of concerns by decoupling schema definition and usage from individual producers and consumers. This makes it easier to maintain and scale your data pipeline as it grows and evolves.
+6. **Documentation**: Schema Registry allows to document everything including changed in description, Tags and having the right tools like Catalog and Data Portal.
 
 While it's possible to add schemas directly from the producer, this approach can lead to fragmentation, inconsistency, and potential compatibility issues across the data pipeline. Therefore, it's generally considered a best practice to use a schema registry for centralized schema management in Kafka-based systems.
 
-# Oragnization Setup for Schema Management
+# Organizational Setup for Schema Management
 
 Here's a suggested setup for managing schema evolution and schema registry in a team environment:
 
@@ -286,5 +282,4 @@ Here's a suggested setup for managing schema evolution and schema registry in a 
 
 By following these guidelines and establishing a collaborative and well-documented approach to schema management, teams can effectively manage schema evolution and ensure the reliability and compatibility of their data pipelines.
 
-
-
+back to [main](ReadMe.md)

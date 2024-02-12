@@ -1,8 +1,8 @@
 # Schema Evolution with Confluent
 
-1. In our [Strategy Development](Strategy.md) we do explain, how to setup an own Strategy how to management Schema and the moist important which Compatibility Method is thr best for my specific case.
-2. In our [Q & A section](QandA.md) you will answers around typical questions.
-3. A Playground the test, plan, design and tryout around this topic is documented in the next steps. We focus on Protobuf and Python as client lib.
+1. In summary of [Schema Management Strategy ](Strategy.md) we explain, how to setup an own Strategy of Schema Management with the focus of "Choose the right compatibility method".
+2. In our [Q & A section](QandA.md) you will find answers around typical questions.
+3. In the playground section (read below), you can play around compatibility methods and schema management. We focus here on Protobuf and Python as client lib.
 
 # Protobuf Playground for Schema Evolution Testing
 
@@ -13,9 +13,8 @@ git clone https://github.com/ora0600/confluent_protobuf_playground.git
 cd confluent_protobuf_playground
 ```
 
-
-We will create a Cloud Cloud CLuster with Schema Registry and one Topic.
-A Python client will produce and another will consume events. You can play around with the Schema, Rules and change versions etc. and see what is happening at client side. The main usecase here is Schema Evolution. Try out and choose the correct Compatibility mode.
+We will create a Cloud Cloud CLuster with Schema Registry and one Topic. But you can change whatever you want to add.
+A Python client will produce and another pyhton client will consume events. You can play around with the Schema, Rules and change versions, add fields, delete fields, rename etc. and see what is happening at client side. The main use case here is Schema Evolution. Try out and choose the correct Compatibility mode/method.
 
 # 1. Create Cloud API Keys and Service Account 
 
@@ -45,6 +44,7 @@ Save the API key and secret. The secret is not retrievable later.
 | API Secret | SECRETYYYYYXXXXXXYXYXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX |
 +------------+------------------------------------------------------------------+
 ```
+
 Your terraform OrgAdmin Service Account is ready to use. Store the API key in Environment Variables or create a File
 Set Environment Variables:
 
@@ -56,13 +56,13 @@ export TF_VAR_confluent_cloud_api_secret="SECRETYYYYYXXXXXXYXYXXXXXXXXXXXXXXXXXX
 ``` 
 
 Hint/Attention:
-<table><tr><td>To make it easy, our Service Account is OrgAdmin. This is nothing for productivity environments, please follow the least privilege principle.</td></tr></table>
+<table><tr><td>To make it easy, our TF Service Account is OrgAdmin. This is nothing for productivity environments, please follow the least privilege principle then.</td></tr></table>
 
 
 # 2. Pre-Reqs/ Tools
 
 * install terraform on your desktop. [Follow the installation guide](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
-* I am running still completely on bash on my Intel Mac. Environment Variables are set in `~/.bash_profile`, if you running other OS or use other Shells like zsh, please setup that script can execute kafka tools without absolution path.
+* I am running still completely on bash on my Intel Mac. Environment Variables are set in `~/.bash_profile`, if you running other OS or use other Shells like zsh, please change your setup that script can execute kafka tools without absolute path.
 * install Python3 on MacOS: [Downland](https://www.python.org/downloads/macos/) and follow the instructions
 * Install all the python modules we need;
 
@@ -74,7 +74,7 @@ pip3 install kafka-python protobuf
 pip3 install jproperties
 ```
 
-Now, we can create Python Code for Users Schema, I did already do this for you. Anyway:
+Now, we can generate Python Code for Users Schema, I did already do this for you. Anyway:
 
 ```bash
 protoc -I=. --python_out=. schema/schema-users-value-v2.proto 
@@ -91,7 +91,7 @@ terraform plan
 terraform apply
 ```
 
-Cluster in running in Confluent Cloud.
+Cluster is now running in Confluent Cloud.
 
 # Start the producer:
 
@@ -119,8 +119,8 @@ message User {
 ![alt terminals](img/topicviewer_schema.png)
 
 Click on validate and save. Now we have version 2. Producer is still running. Enter new records and see what is happening. 
-Of course we do have the new column in our code, but could produce?
-Yes, this should work, because protobuf field are all optional.
+Of course we do have the new column in our code, but could you still produce?
+Yes, this should work, because protobuf field are all optional and the new one too.
 
 ![alt terminals](img/topicviewer_messages.png)
 
@@ -132,6 +132,7 @@ python3 protobuf_consumer.py -f consumer.properties -t users
 ```
 
 Play around with Schema Evolution and use all the fancy tools in Confluent Cloud like
+
 * Stream Lineage
 * Topic Viewer and Schema Editor
 * Schema Registry Editor

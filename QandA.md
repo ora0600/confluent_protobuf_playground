@@ -1,6 +1,10 @@
+# Questions
+
+Here you will questions around schema management. This list is not complete.
+
 # What is best method for protobuf?
 
-Note that best practice for Protobuf is to use BACKWARD_TRANSITIVE, as adding new message types is not forward compatible. See [Docu](https://docs.confluent.io/platform/current/schema-registry/fundamentals/schema-evolution.html#:~:text=Note%20that%20best%20practice%20for,types%20is%20not%20forward%20compatible.)
+Note that best practice for Protobuf is according to the documentation to use BACKWARD_TRANSITIVE, as adding new message types is not forward compatible. See [Docu](https://docs.confluent.io/platform/current/schema-registry/fundamentals/schema-evolution.html#:~:text=Note%20that%20best%20practice%20for,types%20is%20not%20forward%20compatible.)
 
 # Customer want to use protobuf as event schema format. They want to use mode FULL for schema evolution. Are there any problem for old consumer to not run into serialisation issues?
 
@@ -24,7 +28,7 @@ As long as you stick to making backward-compatible changes to your Protobuf sche
 
 # When to set the property use.latest.version for consumer and producer?
 
-The property `use.latest.version` (default is false) is typically used when working with schema evolution in Apache Kafka and the Confluent Schema Registry. It allows consumers and producers to use the latest registered version of the schema for message serialization and deserialization. See [docu](https://docs.confluent.io/platform/current/schema-registry/connect.html#configuration-options)
+The property `use.latest.version` (default is false) is typically used when working with schema evolution in Apache Kafka and the Confluent Schema Registry. It allows consumers and producers to use the latest registered version of the schema for message serialization and deserialization. See [docu](https://docs.confluent.io/platform/current/schema-registry/connect.html#configuration-options). Generally speaking you can also pin the Schema ID by `use.schema.id` see [docu](https://docs.confluent.io/platform/current/schema-registry/fundamentals/serdes-develop/index.html#specifying-schema-id-and-compatibility-checks)
 
 Here's when you might want to use it:
 
@@ -38,8 +42,6 @@ When you want to ensure that all produced messages are serialized using the most
 Setting `use.latest.version` to true on both the producer and consumer side ensures that they always use the latest schema version available in the registry. This can be useful in dynamic environments where schemas might evolve frequently, and you want your applications to seamlessly handle those changes without manual intervention.
 
 However, **keep in mind that blindly using the latest schema version might lead to compatibility issues** if the changes are not backward-compatible. It's essential to understand your schema evolution strategy and ensure that new versions are backward-compatible to avoid breaking existing consumers.
-
-
 
 # If I set on producer `use.latest.version` to false and try to get the schema from object what do I need to care of?
 
@@ -71,16 +73,16 @@ producer = Producer({
     'bootstrap.servers': bootstrap_servers,
     'schema.registry.url': '<SCHEMA_REGISTRY_URL>',
     'use.latest.version': False,  # Ensure this is set to False
-    'schema.registry.version': schema_version  # Specify the schema version to use
+    'use.schema.id': schema_version  # Specify the schema version to use
 })
 
 # Produce messages using the specified schema version
 # Your producer logic goes here...
 ``` 
 
-# Can you explain when forward method is not achievable for protobuf?
+# Protobuf: When forward compatibility method is not achievable for protobuf?
 
-In the context of schema evolution with Protobuf, the "forward compatibility" refers to the ability to read new data with an old schema. It means that if a new field is added to a message, an old consumer that's unaware of this new field should still be able to read and process the message without errors, ignoring the new field.
+In the context of schema evolution with Protobuf, the **"forward compatibility"** refers to the ability to read new data with an old schema. It means that if a new field is added to a message, an old consumer that's unaware of this new field should still be able to read and process the message without errors, ignoring the new field.
 
 However, there are situations where achieving forward compatibility with Protobuf schemas may not be feasible or practical:
 
@@ -93,6 +95,9 @@ However, there are situations where achieving forward compatibility with Protobu
 In summary, achieving forward compatibility with Protobuf schemas depends on the nature of the changes made to the schema and the requirements of the application. While Protobuf provides mechanisms for handling backward-compatible schema changes, achieving forward compatibility may not always be possible or practical, especially in scenarios involving semantic changes or non-optional field additions.
 
 # Some Hints, when to use which method:
+
 1. **Forward compatibility** is enough when the producer wants to update events without breaking consumers, who still would be able to use the old schema before they update.
 2. **Alternatively**, you might want to update consumers first. If that’s your preferred ordering, it’s **backward compatibility** you’ll need to keep. Such an approach is mentioned in the Avro and Schema Registry documentation, check it out for a deeper dive.
 3. **Full compatibility** is the most restrictive variant. It is recommended when we want to make sure that even after adjusting consumers to the latest schema, they still will be able to parse older events and have special handling for fields with present or missing values. Choose this approach when you expect historical events to be replayed, allowing correct handling of all older versions by the consumers, for example, in event sourcing.
+
+back to [main](ReadMe.md)
