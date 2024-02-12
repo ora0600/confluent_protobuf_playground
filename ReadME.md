@@ -1,3 +1,9 @@
+# Schema Evolution with Confluent
+
+1. In our [Strategy Development](Strategy.md) we do explain, how to setup an own Strategy how to management Schema and the moist important which Compatibility Method is thr best for my specific case.
+2. In our [Q & A section](QandA.md) you will answers around typical questions.
+3. A Playground the test, plan, design and tryout around this topic is documented in the next steps. We focus on Protobuf and Python as client lib.
+
 # Protobuf Playground for Schema Evolution Testing
 
 Install the playground on your desktop:
