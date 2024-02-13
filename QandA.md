@@ -82,6 +82,25 @@ producer = Producer({
 
 You can derive a schema from message (maven-plugin). See [derive-schema](https://docs.confluent.io/cloud/current/sr/develop/maven-plugin.html#schema-registry-derive-schema) command.
 
+# is `use.latest.version` also relevant for the consumer?
+
+In Python DeSerializer we do not know the parameter. See [Code](https://github.com/confluentinc/confluent-kafka-python/blob/master/src/confluent_kafka/schema_registry/protobuf.py#L446), I tested it in Python Client see `protobuf_consumer.py` the result:
+* No error to set it
+* If I set to false, and add a field to schema, old data are consumed without error
+* If I set to true, same result, no error, no new field.
+
+In Java, the code uses `use.last.version` in Deserialization. see [code](https://github.com/confluentinc/schema-registry/blob/master/protobuf-serializer/src/main/java/io/confluent/kafka/serializers/protobuf/AbstractKafkaProtobufDeserializer.java)
+
+
+In General, `use.latest.version` is relevant for consumers as well as producers when working with a schema registry. This setting determines whether the consumer should use the latest registered schema version for deserialization.
+
+When `use.latest.version` is set to true on the consumer side, it means that the consumer will dynamically adapt to schema changes and use the latest registered schema version available in the schema registry. This ensures that the consumer can process messages serialized with the latest schema version without manual intervention.
+
+On the other hand, when `use.latest.version` is set to false, the consumer will not automatically use the latest schema version. Instead, it will use the schema version specified in the message or configuration. This allows for more explicit control over the schema version used for deserialization, which can be useful in certain scenarios, such as testing or backward compatibility validation.
+
+In summary, `use.latest.version` is relevant for consumers as it determines whether they should dynamically adapt to schema changes by using the latest schema version registered in the schema registry.
+
+
 # Protobuf: When forward compatibility method is not achievable for protobuf?
 
 In the context of schema evolution with Protobuf, the **"forward compatibility"** refers to the ability to read new data with an old schema. It means that if a new field is added to a message, an old consumer that's unaware of this new field should still be able to read and process the message without errors, ignoring the new field.
@@ -123,6 +142,50 @@ serializer_conf = {
 Could be that there is an issues with schema compatibility. 
 Set `use.latest.version=false` in your configuration and it worked. Typically `use.latest.version=false` is set by default to false.
 
+4. Test:
+You can have a producer use any version of the schema that works for the data, not register new schemas, and normalize the data with the below config:
+```bash
+use.latest.version=false
+auto.register.schemas=false
+normalize.schemas=true
+```
+
+
+#  use.latest.version=false and run into an issue looking up the schema related to different ordering of metadata properties in the proto derived from the object
+
+Case is: set “use.latest.version” to false to have producer deriving the good schema from the object. While trying to achieve that, we run into an issue looking up the schema related to different ordering of metadata properties in the proto derived from the object and the one in schema. Should that be solved using normalization?
+
+The [docu](https://docs.confluent.io/platform/current/schema-registry/fundamentals/serdes-develop/index.html#schema-normalization) says:
+When using Protobuf with a schema registry and setting `use.latest.version = false`, the producer relies on the schema associated with the object being serialized rather than automatically using the latest registered schema version. 
+If you encounter issues with schema lookup due to differences in metadata ordering between the schema and the object derived from the Protobuf definition, **normalization** could indeed be a solution.
+Protobuf messages are binary-encoded, and the order of fields in the binary representation should not matter. However, when dealing with schema registries or other systems that inspect Protobuf schemas, metadata such as field IDs may be ordered differently. This can lead to schema lookup issues if the metadata ordering between the schema and the object does not match.
+Normalization involves ensuring that the metadata ordering in the schema matches that of the object being serialized. 
+This typically involves ensuring that the fields in the Protobuf definition are declared in the same order as they appear in the serialized object.
+Here are some steps you can take to address schema lookup issues due to metadata ordering differences:
+
+* **Check Protobuf Definition**: Ensure that the fields in the Protobuf definition are declared in the same order as they appear in the serialized object. This ensures consistency between the schema and the serialized object.
+* **Use Tools for Normalization**: There are tools available that can help with normalizing Protobuf definitions to ensure consistent metadata ordering. These tools can automatically reorder fields in the Protobuf definition to match the ordering in serialized objects.
+* **Verify Schema Compatibility**: After normalization, verify that the normalized schema is compatible with existing data and other consumers. Ensure that the changes do not introduce backward compatibility issues.
+* **Testing and Validation**: Thoroughly test the normalized schema with various data scenarios to ensure that it behaves as expected and does not cause any issues with schema lookup or serialization.
+* **Consult Documentation and Community**: Check the documentation of the schema registry and any relevant Protobuf tools for guidance on schema normalization. 
+
+By normalizing the Protobuf schema to ensure consistent metadata ordering, you can resolve schema lookup issues and ensure smooth operation when setting use.latest.version to false in your Kafka producer.
+
+# Use case : Running a replay from topic pattern
+
+Schema Registry can enforce compatibility rules to ensure that schemas evolve in a way that is compatible with the consumers [Read-me](ReadME.md)
+
+When running a replay from a topic, ensuring that your consumers can handle the message format is crucial. This includes:
+
+1. Configuring the Consumer: Make sure your Kafka consumer uses the correct deserializer. For ProtoBuf, this would typically be `io.confluent.kafka.serializers.KafkaProtobufDeserializer`.
+2. Compatibility: Before the replay, ensure the schema compatibility is set correctly. If schemas have evolved, you might need to adjust the compatibility mode to ensure your consumers can deserialize the messages.
+3. Schema Evolution: Pay attention to how your schemas have evolved. Adding new fields with defaults or removing optional fields are generally safe operations in a backward-compatible manner. However, any significant changes might require more careful planning.
+
+**Monitoring and Managing Schemas**
+* Monitoring Schema Registry: Keep an eye on the Schema Registry's logs and metrics to ensure it operates correctly.
+* Managing Schemas: Use the Schema Registry API to manage schemas, check compatibility, and register new schema versions as needed.
+
+By properly configuring your Schema Registry and ensuring compatibility, you can smoothly run a replay from a topic, even in scenarios where schemas have evolved. This setup helps maintain data integrity and application reliability in a system leveraging Avro and Kafka.
 
 # Some Hints, when to use which method:
 

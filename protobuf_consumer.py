@@ -24,14 +24,28 @@ if __name__ == '__main__':
         "basic.auth.user.info": confconsumer["basic.auth.user.info"],
     }
     schema_registry_client = SchemaRegistryClient(schema_registry_conf)
-    
+    protobuf_deserializer_conf = {'use.deprecated.format': False,
+                                  'use.latest.version': False,}
     protobuf_deserializer = ProtobufDeserializer(user_pb2.User,
-                                                 {'use.deprecated.format': False})
+                                                 protobuf_deserializer_conf)
     
     consumer_conf = ccloud_lib.pop_schema_registry_params_from_config(confconsumer)
     
     consumer = Consumer(consumer_conf)
     consumer.subscribe([topic])
+
+# Print all properties of the producer
+    print("Consumer Client Configuration:")
+    for key, value in consumer_conf.items():
+        print(f"{key}: {value}")
+    # Print all properties of the producer
+    print("Consumer Client Serialization Configuration:")
+    for key, value in protobuf_deserializer_conf.items():
+        print(f"{key}: {value}")
+    print("Consumer Client Default Serialization Configuration:")
+    for key, value in protobuf_deserializer._default_conf.items():
+        print(f"{key}: {value}")
+    
 
     print("Consuming users records from topic {}. ^C to exit.".format(topic))
     while True:
@@ -48,9 +62,11 @@ if __name__ == '__main__':
                       "\tname: {}\n"
                       "\tfavorite_number: {}\n"
                       "\tfavorite_color: {}\n"
+                      "\tfavorite_color2: {}\n"
                       .format(msg.key(), user.name,
                               user.favorite_number,
-                              user.favorite_color))
+                              user.favorite_color,
+                              user.favorite_color2))
         except KeyboardInterrupt:
             break
 

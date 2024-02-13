@@ -50,21 +50,21 @@ resource "confluent_kafka_cluster" "cc_kafka_cluster" {
 # Service Accounts (app_manager, sr, clients)
 # --------------------------------------------------------
 resource "confluent_service_account" "app_manager" {
-  display_name = "app-manager-${random_id.id.hex}"
+  display_name = "cmapp-manager-${random_id.id.hex}"
   description  = local.description
   lifecycle {
     prevent_destroy = false
   }
 }
 resource "confluent_service_account" "sr" {
-  display_name = "sr-${random_id.id.hex}"
+  display_name = "cmapp-sr-${random_id.id.hex}"
   description  = local.description
   lifecycle {
     prevent_destroy = false
   }
 }
 resource "confluent_service_account" "clients" {
-  display_name = "client-${random_id.id.hex}"
+  display_name = "cmapp-client-${random_id.id.hex}"
   description  = local.description
   lifecycle {
     prevent_destroy = false
@@ -113,7 +113,7 @@ resource "confluent_role_binding" "clients_cluster_admin" {
 # --------------------------------------------------------
 # app_manager
 resource "confluent_api_key" "app_manager_kafka_cluster_key" {
-  display_name = "app-manager-${var.cc_cluster_name}-key-${random_id.id.hex}"
+  display_name = "cmapp-manager-${var.cc_cluster_name}-key-${random_id.id.hex}"
   description  = local.description
   owner {
     id          = confluent_service_account.app_manager.id
@@ -137,7 +137,7 @@ resource "confluent_api_key" "app_manager_kafka_cluster_key" {
 }
 # Schema Registry
 resource "confluent_api_key" "sr_cluster_key" {
-  display_name = "sr-${var.cc_cluster_name}-key-${random_id.id.hex}"
+  display_name = "cmsr-${var.cc_cluster_name}-key-${random_id.id.hex}"
   description  = local.description
   owner {
     id          = confluent_service_account.sr.id
@@ -161,7 +161,7 @@ resource "confluent_api_key" "sr_cluster_key" {
 }
 # Kafka clients
 resource "confluent_api_key" "clients_kafka_cluster_key" {
-  display_name = "clients-${var.cc_cluster_name}-key-${random_id.id.hex}"
+  display_name = "cm-clients-${var.cc_cluster_name}-key-${random_id.id.hex}"
   description  = local.description
   owner {
     id          = confluent_service_account.clients.id

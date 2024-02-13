@@ -1,5 +1,5 @@
 locals {
-  description = "Resource created using terraform"
+  description = "CM Resource created using terraform Schema Evolution Playground for protobuf"
 }
 
 # --------------------------------------------------------

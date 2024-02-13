@@ -37,19 +37,35 @@ if __name__ == '__main__':
 
     schema_registry_conf = {
         "url": confproducer["schema.registry.url"],
-        "basic.auth.user.info": confproducer["basic.auth.user.info"],
+        "basic.auth.user.info": confproducer["basic.auth.user.info"]
     }
     schema_registry_client = SchemaRegistryClient(schema_registry_conf)
     
     string_serializer = StringSerializer('utf8')
+    # Parameters see https://github.com/confluentinc/confluent-kafka-python/blob/master/src/confluent_kafka/schema_registry/protobuf.py
+    protobuf_serializer_conf = {'use.deprecated.format': False, 
+                                'use.latest.version': False, 
+                                'normalize.schemas': True}
     protobuf_serializer = ProtobufSerializer(user_pb2.User,
                                              schema_registry_client,
-                                             {'use.deprecated.format': False})
+                                             protobuf_serializer_conf)
     
     producer_conf = ""
     producer_conf = ccloud_lib.pop_schema_registry_params_from_config(confproducer)
     producer = Producer(producer_conf)
-
+    
+    # Print all properties of the producer
+    print("Producer Client Configuration:")
+    for key, value in producer_conf.items():
+        print(f"{key}: {value}")
+    # Print all properties of the producer
+    print("Producer Client Serialization Configuration:")
+    for key, value in protobuf_serializer_conf.items():
+        print(f"{key}: {value}")
+    print("Producer Client Default Serialization Configuration:")
+    for key, value in protobuf_serializer._default_conf.items():
+        print(f"{key}: {value}")
+    
     print("Producing user records to topic {}. ^C to exit.".format(topic))
     while True:
         # Serve on_delivery callbacks from previous calls to produce()

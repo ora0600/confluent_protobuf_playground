@@ -2,6 +2,7 @@
 
 1. In summary of [Schema Management Strategy ](Strategy.md) we explain, how to setup an own Strategy of Schema Management with the focus of "Choose the right compatibility method".
 2. In our [Q & A section](QandA.md) you will find answers around typical questions.
+3. My colleague Marcelo did also do a good [summary of SR](https://github.com/mcolomerc/java-kafka-clients/blob/main/docs/SR-Questions.md)
 3. In the playground section (read below), you can play around compatibility methods and schema management. We focus here on Protobuf and Python as client lib.
 
 Resources:
@@ -66,6 +67,7 @@ Hint/Attention:
 # 2. Pre-Reqs/ Tools
 
 * install terraform on your desktop. [Follow the installation guide](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
+* Having the latest version of confluent platform on your desktop (7.5.3 in my case)
 * I am running still completely on bash on my Intel Mac. Environment Variables are set in `~/.bash_profile`, if you running other OS or use other Shells like zsh, please change your setup that script can execute kafka tools without absolute path.
 * install Python3 on MacOS: [Downland](https://www.python.org/downloads/macos/) and follow the instructions
 * Install all the python modules we need;
@@ -163,6 +165,7 @@ kafka-protobuf-console-consumer --bootstrap-server <bootstrap>:<host> \
 ```bash
 terraform destroy
 ```
+
 
 
 
