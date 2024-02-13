@@ -77,6 +77,6 @@ cat kafkatools.properties
 echo ""
 echo "Start Clients from bash...."
 echo "Producer"
-echo "python3 protobuf_producer.py -f producer.properties -t user"
+echo "python3 protobuf_producer.py -f producer.properties -t users"
 echo "Consumer"
-echo "python3 protobuf_consumer.py -f consumer.properties -t user"
+echo "python3 protobuf_consumer.py -f consumer.properties -t users"
