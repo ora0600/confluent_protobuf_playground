@@ -193,4 +193,37 @@ By properly configuring your Schema Registry and ensuring compatibility, you can
 2. **Alternatively**, you might want to update consumers first. If that’s your preferred ordering, it’s **backward compatibility** you’ll need to keep. Such an approach is mentioned in the Avro and Schema Registry documentation, check it out for a deeper dive.
 3. **Full compatibility** is the most restrictive variant. It is recommended when we want to make sure that even after adjusting consumers to the latest schema, they still will be able to parse older events and have special handling for fields with present or missing values. Choose this approach when you expect historical events to be replayed, allowing correct handling of all older versions by the consumers, for example, in event sourcing.
 
+# Imported Fields in Protobuf
+
+[Developer Note](https://docs.confluent.io/platform/current/schema-registry/fundamentals/serdes-develop/serdes-protobuf.html#developer-notes).
+
+The import public feature highlights some specific considerations when working with Protobuf (Protocol Buffers) versions 2 and 3, especially in the context of the Java ecosystem and by extension, tools that interact with the Confluent Schema Registry. Here's a deeper dive into what this means and its implications:
+
+## The import public Feature in Protobuf
+
+* Protobuf 2 and 3 introduced the concept of import public to allow a schema file to import another schema file and to re-export that imported schema to any schema that imports the former. This mechanism is designed to facilitate the sharing of common schema definitions across multiple Protobuf files without needing to explicitly import them in each file.
+* Java Support: However, there's a notable limitation in how this feature is supported in the Java ecosystem. The standard Protobuf tooling for Java does not fully support the resolution of these transitive dependencies created by import public. This means that when you are using Protobuf-generated Java code, the compiler may not automatically resolve and include types from transitive imports unless they are directly imported in the .proto file being compiled.
+
+## Implications for Schema Registry
+
+* Transitive Dependencies: Given Java's limitations with import public, when you upload Protobuf schemas to the Confluent Schema Registry that utilize this feature, the registry's tools might not resolve transitive dependencies as expected. This is because the Schema Registry relies on the underlying Protobuf tooling, which has this inherent limitation in Java.
+* Schema Registry and Google/Protobuf Dependencies: It's common to use Google-provided Protobuf dependencies, like the well-known types, in Protobuf schemas. However, because of the aforementioned Java limitation and the way Schema Registry manages dependencies, it's advised not to upload these Google/Protobuf dependencies into the Schema Registry. The reasoning is twofold:
+     * Automatic Exclusion Not Supported: The tooling around Schema Registry does not automatically exclude certain dependencies that might cause issues, such as those provided by Google/Protobuf. This means that users must be cautious and manually manage what gets uploaded to avoid potential conflicts or resolution issues.
+     * Avoiding Unnecessary Complexity: Uploading external dependencies like those from Google/Protobuf could introduce unnecessary complexity and potential for errors in schema management within the Registry, due to the way dependencies are resolved (or not resolved) by the Protobuf tooling in Java.
+
+## Best Practices
+
+Given these considerations, when working with Protobuf schemas in environments that use the Confluent Schema Registry, it's important to:
+
+* Manually Manage Imports: Be explicit and cautious about what you import and upload to the Schema Registry. Avoid using import public if you expect the Schema Registry to manage transitive dependencies automatically. The Confluent Support knowledge Base announces a how-to: Search for "How to register a schema with references".
+* Avoid Uploading External Dependencies: Especially avoid uploading external dependencies that are widely used and might be assumed to be implicitly available, like Google's Protobuf types. Instead, rely on direct imports in your .proto files for clarity and to ensure compatibility.
+* Understand Tooling Limitations: Acknowledge the limitations of the Protobuf tooling in Java regarding import public and transitive dependency resolution. Plan your schema design and registry management practices accordingly to avoid unexpected issues.
+
+By navigating these intricacies thoughtfully, you can more effectively manage your Protobuf schemas within the Confluent Schema Registry, ensuring smoother development and deployment processes for your data-driven applications.
+
+for more schema references samples please check:
+* [https://developer.confluent.io/tutorials/multiple-event-type-topics/confluent.html](https://developer.confluent.io/tutorials/multiple-event-type-topics/confluent.html)
+* [https://github.com/davidaraujo/demo-schema-references](https://github.com/davidaraujo/demo-schema-references) 
+
+
 back to [main](ReadMe.md)
