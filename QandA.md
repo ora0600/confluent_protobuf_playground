@@ -225,5 +225,62 @@ for more schema references samples please check:
 * [https://developer.confluent.io/tutorials/multiple-event-type-topics/confluent.html](https://developer.confluent.io/tutorials/multiple-event-type-topics/confluent.html)
 * [https://github.com/davidaraujo/demo-schema-references](https://github.com/davidaraujo/demo-schema-references) 
 
+# Samples
+
+## Protobuf Schema with References and Java Producer
+
+Confluent do offer a pretty nice example with Schema References. [Handling multiple Event Types in a topic](https://developer.confluent.io/tutorials/multiple-event-type-topics/confluent.html)
+What I learned from this example is: Protobif schema with references need be registered differently in this case of gradle.
+This sample plays around a schema with references:
+
+```java
+syntax = "proto3";
+
+package io.confluent.developer.proto;
+
+import "purchase.proto";
+import "pageview.proto";  (1)
+
+option java_outer_classname = "CustomerEventProto";
+
+message CustomerEvent {  (2)
+
+  oneof action {   (3)
+    Purchase purchase = 1;
+    Pageview pageview = 2;
+  }
+  string id = 3;
+}
+```
+
+The idea is that only one reference could be active for one event.
+
+The registration of avro schema with references is straightforward documented in `build.gradle`;
+
+```java
+register {
+        subject('pageview', 'src/main/avro/pageview.avsc', 'AVRO')
+        subject('purchase', 'src/main/avro/purchase.avsc', 'AVRO')
+        subject('avro-events-value', 'src/main/avro/all-events.avsc', 'AVRO')
+                .addReference("io.confluent.developer.avro.Pageview", "pageview", 1)
+                .addReference("io.confluent.developer.avro.Purchase", "purchase", 1)
+    }
+```
+
+register
+```bash
+./gradlew registerSchemasTask
+```
+
+We don’t have a corresponding command to register schemas for Protobuf. Instead, you are going to use the auto-registration feature for the Protobuf schemas because Protobuf will recursively register any proto files included in the main schema.
+
+The result is for schema definition:
+![protobuf schema](img/protobuf_schema.png)
+
+The topic show only one reference per event record
+![event record](img/proto-topic.png)
+
+
+
 
 back to [main](ReadMe.md)
