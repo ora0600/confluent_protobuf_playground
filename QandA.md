@@ -239,13 +239,13 @@ syntax = "proto3";
 package io.confluent.developer.proto;
 
 import "purchase.proto";
-import "pageview.proto";  (1)
+import "pageview.proto"; 
 
 option java_outer_classname = "CustomerEventProto";
 
-message CustomerEvent {  (2)
+message CustomerEvent { 
 
-  oneof action {   (3)
+  oneof action {  
     Purchase purchase = 1;
     Pageview pageview = 2;
   }
